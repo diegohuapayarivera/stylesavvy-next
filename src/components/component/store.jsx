@@ -43,61 +43,9 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { agruparProductos, obtenerDatos } from "@/helpers/getProducts";
+import { agruparProductos } from "@/helpers/getProducts";
 
 export function Store() {
-  //const productosllamada = await obtenerDatos();
-  //console.log(productosllamada);
-  const productss = [
-    {
-      id: 1,
-      name: "Cozy Sweater",
-      price: 49.99,
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["white", "navy"],
-      categorys: ["Accessories"],
-    },
-    {
-      id: 2,
-      name: "Leather Backpack",
-      price: 79.99,
-      sizes: ["One Size"],
-      colors: ["white", "navy"],
-      categorys: ["Accessories"],
-    },
-    {
-      id: 3,
-      name: "Retro Sunglasses",
-      price: 29.99,
-      sizes: ["One Size"],
-      colors: ["white", "navy"],
-      categorys: ["Clothing"],
-    },
-    {
-      id: 4,
-      name: "Linen Shirt",
-      price: 39.99,
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["white", "navy"],
-      categorys: ["Clothing"],
-    },
-    {
-      id: 5,
-      name: "Leather Tote Bag",
-      price: 59.99,
-      sizes: ["One Size"],
-      colors: ["black", "tan"],
-      categorys: ["Accessories"],
-    },
-    {
-      id: 6,
-      name: "Wool Scarf",
-      price: 24.99,
-      sizes: ["One Size"],
-      colors: ["gray", "navy", "burgundy"],
-      categorys: ["Clothing"],
-    },
-  ];
   const [products, setproducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedColor, setSelectedColor] = useState([]);
@@ -110,8 +58,9 @@ export function Store() {
       const respuesta = await fetch(url);
       const productos = await respuesta.json();
 
+      const productosDisponibles = productos.filter(producto => producto.estado === "disponible");
       // Agrupa los productos
-      const agrupados = agruparProductos(productos);
+      const agrupados = agruparProductos(productosDisponibles);
       setproducts(agrupados);
     }
 
@@ -295,7 +244,7 @@ export function Store() {
                 </Accordion>
               </div>
             </div>
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center justify-between">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

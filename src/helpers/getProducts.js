@@ -1,4 +1,4 @@
-'use server'
+'use server';
 
 // Función para agrupar los productos
 function agruparProductos(productos) {
@@ -71,22 +71,5 @@ function groupByCodeClothe(data) {
   return result;
 }
 
-async function sendCart(name, phone, cart) {
-  const data = {
-    usuario: { name, phone },
-    cart,
-  };
-  const response = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-    mode: 'no-cors',
-  });
-  const whatsappLink = await response.text();
-  console.log(whatsappLink, "link")
-  window.open(whatsappURL, '_blank');
-}
 
-module.exports = { agruparProductos, groupByCodeClothe, sendCart };
+module.exports = { agruparProductos, groupByCodeClothe };

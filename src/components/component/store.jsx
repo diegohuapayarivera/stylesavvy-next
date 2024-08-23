@@ -69,7 +69,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
 
 export function Store() {
   const [products, setproducts] = useState([]);
@@ -236,7 +235,6 @@ export function Store() {
       (productItem) => productItem.code === item.code
     );
     if (itemExists) {
-      console.log("igualito");
       const updateItem = cart.map((productItem) =>
         productItem.code === item.code
           ? { ...productItem, quantity: productItem.quantity + 1 }
@@ -244,7 +242,6 @@ export function Store() {
       );
       setCart(updateItem);
     } else {
-      console.log("nuevoooo");
       const newItem = {
         name: product.name,
         code: item.code,
@@ -401,7 +398,7 @@ export function Store() {
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button type="submit" onClick={() => sendCart()}>
+                            <Button >
                               Checkout
                             </Button>
                           </DialogFooter>

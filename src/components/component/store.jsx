@@ -44,6 +44,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { agruparProductos, groupByCodeClothe } from "@/helpers/getProducts";
+import AccordionFilter from "./AccordionFilter";
 
 export function Store() {
   const [products, setproducts] = useState([]);
@@ -191,77 +192,26 @@ export function Store() {
             <div>
               <div className="hidden md:grid gap-6">
                 <h2 className="text-3xl font-bold mb-4">Filtros</h2>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="category">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Categoria</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerCategoriasUnicas(products).map((category) => (
-                          <Label
-                            key={category}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedCategory.includes(category)}
-                              onCheckedChange={() =>
-                                handleCategoryChange(category)
-                              }
-                            />
-                            {category}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="color">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Color</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerColoresUnicas(products).map((color) => (
-                          <Label
-                            key={color}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedColor.includes(color)}
-                              onCheckedChange={() => handleColorChange(color)}
-                            />
-                            {color}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="size">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Talla</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerTallasUnicas(products).map((size) => (
-                          <Label
-                            key={size}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedSize.includes(size)}
-                              onCheckedChange={() => handleSizeChange(size)}
-                            />
-                            {size}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                <AccordionFilter
+                  title={"Categoria"}
+                  categoryes={obtenerCategoriasUnicas(products)}
+                  handleCategoryChange={handleCategoryChange}
+                  selectedCategory={selectedCategory}
+                />
+
+                <AccordionFilter
+                  title={"Color"}
+                  categoryes={obtenerColoresUnicas(products)}
+                  handleCategoryChange={handleColorChange}
+                  selectedCategory={selectedColor}
+                />
+
+                <AccordionFilter
+                  title={"Talla"}
+                  categoryes={obtenerTallasUnicas(products)}
+                  handleCategoryChange={handleSizeChange}
+                  selectedCategory={selectedSize}
+                />
               </div>
             </div>
             <div className="md:hidden flex items-center justify-between">
@@ -278,85 +228,25 @@ export function Store() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[300px]">
                   <div className="p-4 grid gap-6">
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="category">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">
-                            Categoria
-                          </h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerCategoriasUnicas(products).map(
-                              (category) => (
-                                <Label
-                                  key={category}
-                                  className="flex items-center gap-2 font-normal"
-                                >
-                                  <Checkbox
-                                    checked={selectedCategory.includes(
-                                      category
-                                    )}
-                                    onCheckedChange={() =>
-                                      handleCategoryChange(category)
-                                    }
-                                  />
-                                  {category}
-                                </Label>
-                              )
-                            )}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="color">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">Color</h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerColoresUnicas(products).map((color) => (
-                              <Label
-                                key={color}
-                                className="flex items-center gap-2 font-normal"
-                              >
-                                <Checkbox
-                                  checked={selectedColor.includes(color)}
-                                  onCheckedChange={() =>
-                                    handleColorChange(color)
-                                  }
-                                />
-                                {color}
-                              </Label>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="size">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">Talla</h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerTallasUnicas(products).map((size) => (
-                              <Label
-                                key={size}
-                                className="flex items-center gap-2 font-normal"
-                              >
-                                <Checkbox
-                                  checked={selectedSize.includes(size)}
-                                  onCheckedChange={() => handleSizeChange(size)}
-                                />
-                                {size}
-                              </Label>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
+                    <AccordionFilter
+                      title={"Categoria"}
+                      categoryes={obtenerCategoriasUnicas(products)}
+                      handleCategoryChange={handleCategoryChange}
+                      selectedCategory={selectedCategory}
+                    />
+                    <AccordionFilter
+                      title={"Color"}
+                      categoryes={obtenerColoresUnicas(products)}
+                      handleCategoryChange={handleColorChange}
+                      selectedCategory={selectedColor}
+                    />
+
+                    <AccordionFilter
+                      title={"Talla"}
+                      categoryes={obtenerTallasUnicas(products)}
+                      handleCategoryChange={handleSizeChange}
+                      selectedCategory={selectedSize}
+                    />
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>

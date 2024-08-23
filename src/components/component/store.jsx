@@ -50,15 +50,16 @@ export function Store() {
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedColor, setSelectedColor] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
-
+  const url =
+    "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
   useEffect(() => {
     async function fetchData() {
-      const url =
-        "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
       const respuesta = await fetch(url);
       const productos = await respuesta.json();
 
-      const productosDisponibles = productos.filter(producto => producto.estado === "disponible");
+      const productosDisponibles = productos.filter(
+        (producto) => producto.estado === "disponible"
+      );
       // Agrupa los productos
       const agrupados = agruparProductos(productosDisponibles);
       setproducts(agrupados);

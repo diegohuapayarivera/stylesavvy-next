@@ -1,3 +1,5 @@
+'use server'
+
 // Función para agrupar los productos
 function agruparProductos(productos) {
   const agrupados = [];
@@ -33,4 +35,58 @@ function agruparProductos(productos) {
   return agrupados;
 }
 
-module.exports = { agruparProductos };
+function groupByCodeClothe(data) {
+  const result = [];
+
+  data.forEach(item => {
+      // Buscar si ya existe un objeto con el mismo code_clothe
+      let existing = result.find(obj => obj.code_clothe === item.code_clothe);
+
+      if (existing) {
+          // Si existe, agregar el nuevo "clothe" al array "clothes"
+          existing.clothes.push({
+              code: item.code,
+              sizes: item.sizes,
+              colors: item.colors,
+              image: item.image
+          });
+      } else {
+          // Si no existe, crear un nuevo objeto y agregarlo al resultado
+          result.push({
+              code_clothe: item.code_clothe,
+              name: item.name,
+              price: item.price,
+              categorys: item.categorys,
+              estado: item.estado,
+              clothes: [{
+                  code: item.code,
+                  sizes: item.sizes,
+                  colors: item.colors,
+                  image: item.image
+              }]
+          });
+      }
+  });
+
+  return result;
+}
+
+async function sendCart(name, phone, cart) {
+  const data = {
+    usuario: { name, phone },
+    cart,
+  };
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    mode: 'no-cors',
+  });
+  const whatsappLink = await response.text();
+  console.log(whatsappLink, "link")
+  window.open(whatsappURL, '_blank');
+}
+
+module.exports = { agruparProductos, groupByCodeClothe, sendCart };

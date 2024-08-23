@@ -43,15 +43,43 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { agruparProductos } from "@/helpers/getProducts";
+import "boxicons";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export function Store() {
   const [products, setproducts] = useState([]);
+  const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedColor, setSelectedColor] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
+
   const url =
     "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
+
   useEffect(() => {
     async function fetchData() {
       const respuesta = await fetch(url);
@@ -60,17 +88,60 @@ export function Store() {
       const productosDisponibles = productos.filter(
         (producto) => producto.estado === "disponible"
       );
+
       // Agrupa los productos
       const agrupados = agruparProductos(productosDisponibles);
       setproducts(agrupados);
+
     }
 
     fetchData();
   }, []);
 
+  function groupByCodeClothe(data) {
+    const result = [];
+
+    data.forEach((item) => {
+      // Buscar si ya existe un objeto con el mismo code_clothe
+      let existing = result.find((obj) => obj.code_clothe === item.code_clothe);
+
+      if (existing) {
+        // Si existe, agregar el nuevo "clothe" al array "clothes"
+        existing.clothes.push({
+          code: item.code,
+          sizes: item.sizes,
+          colors: item.colors,
+          image: item.image,
+        });
+      } else {
+        // Si no existe, crear un nuevo objeto y agregarlo al resultado
+        result.push({
+          code_clothe: item.code_clothe,
+          name: item.name,
+          price: item.price,
+          categorys: item.categorys,
+          estado: item.estado,
+          clothes: [
+            {
+              code: item.code,
+              sizes: item.sizes,
+              colors: item.colors,
+              image: item.image,
+            },
+          ],
+        });
+      }
+    });
+
+    return result;
+  }
+
+  
+
   const filteredProducts = useMemo(() => {
+    
     return products.filter((product) => {
-      if (
+      /**if (
         selectedCategory.length > 0 &&
         !selectedCategory.some((category) =>
           product.categorys.includes(category)
@@ -80,19 +151,26 @@ export function Store() {
       }
       if (
         selectedColor.length > 0 &&
-        !selectedColor.some((color) => product.colors.includes(color))
+        !selectedColor.some((color) => product.clothes.includes({colors: color}))
       ) {
         return false;
       }
       if (
         selectedSize.length > 0 &&
-        !selectedSize.some((size) => product.sizes.includes(size))
+        !selectedSize.some((size) => product.clothes.includes(size))
       ) {
         return false;
       }
       return true;
+      */
+      const matchesCategory = selectedCategory.length === 0 || selectedCategory.includes(product.categorys);
+      const matchesColor = selectedColor.length === 0 || product.clothes.some(clothe => selectedColor.includes(clothe.colors));
+      const matchesSize = selectedSize.length === 0 || product.clothes.some(clothe => selectedSize.includes(clothe.sizes));
+      
+      return matchesCategory && matchesColor && matchesSize;
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
+
   const handleCategoryChange = (category) => {
     if (selectedCategory.includes(category)) {
       setSelectedCategory(selectedCategory.filter((item) => item !== category));
@@ -100,6 +178,7 @@ export function Store() {
       setSelectedCategory([...selectedCategory, category]);
     }
   };
+
   const handleColorChange = (color) => {
     if (selectedColor.includes(color)) {
       setSelectedColor(selectedColor.filter((item) => item !== color));
@@ -107,6 +186,7 @@ export function Store() {
       setSelectedColor([...selectedColor, color]);
     }
   };
+
   const handleSizeChange = (size) => {
     if (selectedSize.includes(size)) {
       setSelectedSize(selectedSize.filter((item) => item !== size));
@@ -119,9 +199,7 @@ export function Store() {
     const categorias = new Set();
 
     productos.forEach((producto) => {
-      producto.categorys.forEach((categoria) => {
-        categorias.add(categoria);
-      });
+      categorias.add(producto.categorys);
     });
 
     return Array.from(categorias);
@@ -131,8 +209,8 @@ export function Store() {
     const colores = new Set();
 
     productos.forEach((producto) => {
-      producto.colors.forEach((color) => {
-        colores.add(color);
+      producto.clothes.forEach((clothe) => {
+        colores.add(clothe.colors);
       });
     });
 
@@ -143,13 +221,62 @@ export function Store() {
     const tallas = new Set();
 
     productos.forEach((producto) => {
-      producto.sizes.forEach((talla) => {
-        tallas.add(talla);
+      producto.clothes.forEach((clothe) => {
+        tallas.add(clothe.sizes);
       });
     });
 
     return Array.from(tallas);
   }
+
+  function addItem(item, product) {
+    console.log(cart);
+    console.log(item);
+    const itemExists = cart.find(
+      (productItem) => productItem.code === item.code
+    );
+    if (itemExists) {
+      const updateItem = cart.map((productItem) =>
+        productItem.code === item.code
+          ? { ...productItem, quantity: productItem.quantity + 1 }
+          : productItem
+      );
+      setCart(updateItem);
+    } else {
+      const newItem = {
+        name: product.name,
+        code: item.code,
+        size: item.sizes,
+        color: item.colors,
+        quantity: 1,
+        price: product.price,
+        image: item.image,
+      };
+      setCart([...cart, newItem]);
+    }
+  }
+
+  const totalAmount = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
+    [cart]
+  );
+
+  function colorUnique(clothes) {
+    const colorUniques = new Set();
+    clothes.map((item) => {
+      colorUniques.add(item.colors);
+    });
+    return Array.from(colorUniques);
+  }
+
+  function sizesUnique(clothes) {
+    const sizesUniques = new Set();
+    clothes.map((item) => {
+      sizesUniques.add(item.sizes);
+    });
+    return Array.from(sizesUniques);
+  }
+
   return (
     <div>
       <header className="bg-primary text-primary-foreground py-4 md:py-6 lg:py-8">
@@ -162,8 +289,128 @@ export function Store() {
               </span>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-4 lg:gap-6" />
-          <div className="md:hidden" />
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6 border-white">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button className="w-full flex border-2 border-white items-center justify-center gap-2">
+                  <box-icon name="cart" color="#FFF"></box-icon>
+                  Carrito
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="w-[400px] mx-auto">
+                <DrawerHeader>
+                  <DrawerTitle>Carrito</DrawerTitle>
+                </DrawerHeader>
+                {cart.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className="text-muted-foreground">
+                      Tu carrito esta vacio.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {cart.map((product) => (
+                      <div
+                        key={product.image}
+                        className="flex items-center gap-4"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          width={20}
+                          height={20}
+                          className="rounded-md object-cover w-10 aspect-square pl-2"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{product.name} - {product.color}</h3>
+                            <span className="font-semibold">
+                              ${(product.price * product.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Cantidad: </span>
+                            {product.quantity}
+                            <span>Talla: </span>
+                            {product.size}
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon">
+                          <box-icon name="trash" color="#000"></box-icon>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {cart.length > 0 && (
+                  <>
+                    <Separator className="my-4" />
+                    <div className="flex items-center justify-between px-4 py-2 bg-muted rounded-b-md">
+                      <span className="font-semibold">Total:</span>
+                      <span className="font-semibold">
+                        ${totalAmount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="px-4 py-4">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="w-full flex border-2 border-white items-center justify-center gap-2"
+                            size="icon"
+                          >
+                            <box-icon name="basket" color="#fff"></box-icon>
+                            Comprar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Escogiste el outfit Perfecto 😍
+                            </DialogTitle>
+                            <DialogDescription>
+                              Ahora necesitamos que coloques tu nombre y celular
+                              para hacer el pedido✨.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid items-center grid-cols-4 gap-4">
+                              <Label htmlFor="name" className="text-right">
+                                Nombre
+                              </Label>
+                              <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Juan Perez Soto"
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid items-center grid-cols-4 gap-4">
+                              <Label htmlFor="phone" className="text-right">
+                                Celular
+                              </Label>
+                              <Input
+                                id="phone"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="col-span-3"
+                                placeholder="+51999888777"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button >
+                              Checkout
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </>
+                )}
+              </DrawerContent>
+            </Drawer>
+          </nav>
         </div>
       </header>
       <div className="container px-4 md:px-6 max-w-6xl mx-auto py-12">
@@ -341,19 +588,69 @@ export function Store() {
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <box-icon name="cart" color="#000"></box-icon>
+                    Carrito
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="w-[400px] mx-auto">
+                  <DrawerHeader>
+                    <DrawerTitle>Cart</DrawerTitle>
+                  </DrawerHeader>
+                  <div className="grid gap-4">
+                    {cart.map((product) => (
+                      <div
+                        key={product.image}
+                        className="flex items-center gap-4"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          width={20}
+                          height={20}
+                          className="rounded-md object-cover w-10 aspect-square"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{product.name}</h3>
+                            <span className="font-semibold">
+                              ${product.price}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Cantidad: </span>
+                            {product.quantity}
+                            <span>Talla: </span>
+                            {product.size}
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon">
+                          <box-icon name="trash" color="#e8e8e6"></box-icon>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </DrawerContent>
+              </Drawer>
             </div>
           </div>
           <div className="grid gap-8">
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <div
-                  key={product.id}
+                  key={product.code_clothe}
                   className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
                 >
                   <div className="p-4 grid gap-2">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.clothes[0].image}
+                      alt={product.clothes[0].code}
                       width={300}
                       height={300}
                       className="rounded-md object-cover w-full aspect-square"
@@ -366,7 +663,7 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Tallas</h4>
                         <div className="flex gap-2">
-                          {product.sizes.map((size) => (
+                          {sizesUnique(product.clothes).map((size) => (
                             <Badge
                               key={size}
                               variant="outline"
@@ -380,17 +677,76 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Colores</h4>
                         <div className="flex flex-wrap gap-2">
-                          {product.colors.map((color) => (
-                            <Badge
-                              key={color}
-                              variant="outline"
-                              className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
-                            >
-                              {color}
-                            </Badge>
-                          ))}
+                          {colorUnique(product.clothes).map((color) => {
+                            return (
+                              <Badge
+                                key={color}
+                                variant="outline"
+                                className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
+                              >
+                                {color}
+                              </Badge>
+                            );
+                          })}
                         </div>
                       </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="w-full flex border-2 border-white items-center justify-center gap-2"
+                            size="icon"
+                          >
+                            <box-icon name="search-alt" color="#fff"></box-icon>
+                            Ver producto
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Referencia del producto</DialogTitle>
+                          </DialogHeader>
+                          <Carousel className="w-full max-w-4xl relative">
+                            <CarouselContent>
+                              {product.clothes.map((clote) => (
+                                <CarouselItem key={clote.code}>
+                                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-center">
+                                    <img
+                                      src={clote.image}
+                                      alt={clote.code}
+                                      width={600}
+                                      height={600}
+                                      className="rounded-lg object-cover w-full aspect-square"
+                                    />
+                                    <div className="grid gap-4">
+                                      <div className="grid gap-2">
+                                        <h3 className="text-xl font-bold">
+                                          {product.name}
+                                        </h3>
+                                        <p className="text-muted-foreground">
+                                          Talla: {clote.sizes}
+                                        </p>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-muted-foreground">
+                                          Color: {clote.colors}
+                                        </p>
+                                      </div>
+                                      <Button
+                                        type="submit"
+                                        onClick={() => addItem(clote, product)}
+                                      >
+                                        Agregar
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CarouselItem>
+                              ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
+                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
+                          </Carousel>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
@@ -418,25 +774,6 @@ function FilterIcon(props) {
       strokeLinejoin="round"
     >
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-    </svg>
-  );
-}
-
-function MountainIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="/public/icono4.png"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
     </svg>
   );
 }

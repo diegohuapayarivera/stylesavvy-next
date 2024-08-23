@@ -76,10 +76,9 @@ export function Store() {
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedColor, setSelectedColor] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+
   const url =
-    "https://script.google.com/macros/s/AKfycbxlAcQal_3wvGOYMuZtw8_mT1g2ygPRNyh0qf77nxdCNClt2iUxu07lCQFXm70PhX4/exec";
+    "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
 
   useEffect(() => {
     async function fetchData() {
@@ -90,8 +89,10 @@ export function Store() {
         (producto) => producto.estado === "disponible"
       );
 
-      const agrupadosv2 = groupByCodeClothe(productosDisponibles);
-      setproducts(agrupadosv2);
+      // Agrupa los productos
+      const agrupados = agruparProductos(productosDisponibles);
+      setproducts(agrupados);
+
     }
 
     fetchData();
@@ -421,7 +422,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="category">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Categoria</h3>
+                      <h3 className="text-base font-medium mb-2">Categorias</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">
@@ -446,7 +447,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="color">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Color</h3>
+                      <h3 className="text-base font-medium mb-2">Colores</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">
@@ -469,7 +470,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="size">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Talla</h3>
+                      <h3 className="text-base font-medium mb-2">Tallas</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">

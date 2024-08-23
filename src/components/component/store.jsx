@@ -26,46 +26,49 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { agruparProductos } from "@/helpers/getProducts";
+import { groupByCodeClothe } from "@/helpers/getProducts";
+import AccordionFilter from "./AccordionFilter";
+import useProduct from "@/hook/useProduct";
 
 export function Store() {
-  const [products, setproducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selectedColor, setSelectedColor] = useState([]);
-  const [selectedSize, setSelectedSize] = useState([]);
+  const {
+    products,
+    setproducts,
+    selectedCategory,
+    selectedColor,
+    selectedSize,
+    getCategoryesUniques,
+    handleCategoryesChange,
+  } = useProduct();
+
+  const url =
+    "https://script.google.com/macros/s/AKfycbxlAcQal_3wvGOYMuZtw8_mT1g2ygPRNyh0qf77nxdCNClt2iUxu07lCQFXm70PhX4/exec";
 
   useEffect(() => {
     async function fetchData() {
-      const url =
-        "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
       const respuesta = await fetch(url);
       const productos = await respuesta.json();
 
-      const productosDisponibles = productos.filter(producto => producto.estado === "disponible");
-      // Agrupa los productos
-      const agrupados = agruparProductos(productosDisponibles);
+      const productosDisponibles = productos.filter(
+        (producto) => producto.estado === "disponible"
+      );
+      const agrupados = groupByCodeClothe(productosDisponibles);
       setproducts(agrupados);
     }
 
     fetchData();
-  }, []);
+  }, [setproducts]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -92,63 +95,7 @@ export function Store() {
       return true;
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
-  const handleCategoryChange = (category) => {
-    if (selectedCategory.includes(category)) {
-      setSelectedCategory(selectedCategory.filter((item) => item !== category));
-    } else {
-      setSelectedCategory([...selectedCategory, category]);
-    }
-  };
-  const handleColorChange = (color) => {
-    if (selectedColor.includes(color)) {
-      setSelectedColor(selectedColor.filter((item) => item !== color));
-    } else {
-      setSelectedColor([...selectedColor, color]);
-    }
-  };
-  const handleSizeChange = (size) => {
-    if (selectedSize.includes(size)) {
-      setSelectedSize(selectedSize.filter((item) => item !== size));
-    } else {
-      setSelectedSize([...selectedSize, size]);
-    }
-  };
 
-  function obtenerCategoriasUnicas(productos) {
-    const categorias = new Set();
-
-    productos.forEach((producto) => {
-      producto.categorys.forEach((categoria) => {
-        categorias.add(categoria);
-      });
-    });
-
-    return Array.from(categorias);
-  }
-
-  function obtenerColoresUnicas(productos) {
-    const colores = new Set();
-
-    productos.forEach((producto) => {
-      producto.colors.forEach((color) => {
-        colores.add(color);
-      });
-    });
-
-    return Array.from(colores);
-  }
-
-  function obtenerTallasUnicas(productos) {
-    const tallas = new Set();
-
-    productos.forEach((producto) => {
-      producto.sizes.forEach((talla) => {
-        tallas.add(talla);
-      });
-    });
-
-    return Array.from(tallas);
-  }
   return (
     <div>
       <header className="bg-primary text-primary-foreground py-4 md:py-6 lg:py-8">
@@ -171,77 +118,26 @@ export function Store() {
             <div>
               <div className="hidden md:grid gap-6">
                 <h2 className="text-3xl font-bold mb-4">Filtros</h2>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="category">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Categoria</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerCategoriasUnicas(products).map((category) => (
-                          <Label
-                            key={category}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedCategory.includes(category)}
-                              onCheckedChange={() =>
-                                handleCategoryChange(category)
-                              }
-                            />
-                            {category}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="color">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Color</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerColoresUnicas(products).map((color) => (
-                          <Label
-                            key={color}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedColor.includes(color)}
-                              onCheckedChange={() => handleColorChange(color)}
-                            />
-                            {color}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="size">
-                    <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Talla</h3>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid gap-2">
-                        {obtenerTallasUnicas(products).map((size) => (
-                          <Label
-                            key={size}
-                            className="flex items-center gap-2 font-normal"
-                          >
-                            <Checkbox
-                              checked={selectedSize.includes(size)}
-                              onCheckedChange={() => handleSizeChange(size)}
-                            />
-                            {size}
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                <AccordionFilter
+                  title={"Categoria"}
+                  categoryes={getCategoryesUniques("Categoria")}
+                  handleCategoryChange={handleCategoryesChange}
+                  selectedCategory={selectedCategory}
+                />
+
+                <AccordionFilter
+                  title={"Color"}
+                  categoryes={getCategoryesUniques("Color")}
+                  handleCategoryChange={handleCategoryesChange}
+                  selectedCategory={selectedColor}
+                />
+
+                <AccordionFilter
+                  title={"Talla"}
+                  categoryes={getCategoryesUniques("Talla")}
+                  handleCategoryChange={handleCategoryesChange}
+                  selectedCategory={selectedSize}
+                />
               </div>
             </div>
             <div className="md:hidden flex items-center justify-between">
@@ -258,85 +154,25 @@ export function Store() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[300px]">
                   <div className="p-4 grid gap-6">
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="category">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">
-                            Categoria
-                          </h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerCategoriasUnicas(products).map(
-                              (category) => (
-                                <Label
-                                  key={category}
-                                  className="flex items-center gap-2 font-normal"
-                                >
-                                  <Checkbox
-                                    checked={selectedCategory.includes(
-                                      category
-                                    )}
-                                    onCheckedChange={() =>
-                                      handleCategoryChange(category)
-                                    }
-                                  />
-                                  {category}
-                                </Label>
-                              )
-                            )}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="color">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">Color</h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerColoresUnicas(products).map((color) => (
-                              <Label
-                                key={color}
-                                className="flex items-center gap-2 font-normal"
-                              >
-                                <Checkbox
-                                  checked={selectedColor.includes(color)}
-                                  onCheckedChange={() =>
-                                    handleColorChange(color)
-                                  }
-                                />
-                                {color}
-                              </Label>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="size">
-                        <AccordionTrigger className="text-base">
-                          <h3 className="text-base font-medium mb-2">Talla</h3>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-2">
-                            {obtenerTallasUnicas(products).map((size) => (
-                              <Label
-                                key={size}
-                                className="flex items-center gap-2 font-normal"
-                              >
-                                <Checkbox
-                                  checked={selectedSize.includes(size)}
-                                  onCheckedChange={() => handleSizeChange(size)}
-                                />
-                                {size}
-                              </Label>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
+                    <AccordionFilter
+                      title={"Categoria"}
+                      categoryes={getCategoryesUniques("Categoria")}
+                      handleCategoryChange={handleCategoryesChange}
+                      selectedCategory={selectedCategory}
+                    />
+                    <AccordionFilter
+                      title={"Color"}
+                      categoryes={getCategoryesUniques("Color")}
+                      handleCategoryChange={handleCategoryesChange}
+                      selectedCategory={selectedColor}
+                    />
+
+                    <AccordionFilter
+                      title={"Talla"}
+                      categoryes={getCategoryesUniques("Talla")}
+                      handleCategoryChange={handleCategoryesChange}
+                      selectedCategory={selectedSize}
+                    />
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -346,13 +182,13 @@ export function Store() {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <div
-                  key={product.id}
+                  key={product.code_clothe}
                   className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
                 >
                   <div className="p-4 grid gap-2">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.clothes[0].image}
+                      alt={product.clothes[0].code}
                       width={300}
                       height={300}
                       className="rounded-md object-cover w-full aspect-square"
@@ -365,29 +201,41 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Tallas</h4>
                         <div className="flex gap-2">
-                          {product.sizes.map((size) => (
-                            <Badge
-                              key={size}
-                              variant="outline"
-                              className="px-2 py-1"
-                            >
-                              {size}
-                            </Badge>
-                          ))}
+                          {product.colors
+                            .filter(
+                              (valor, indice, self) =>
+                                self.indexOf(valor) === indice
+                            )
+                            .map((size) => (
+                              <Badge
+                                key={size}
+                                variant="outline"
+                                className="px-2 py-1"
+                              >
+                                {size}
+                              </Badge>
+                            ))}
                         </div>
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Colores</h4>
                         <div className="flex flex-wrap gap-2">
-                          {product.colors.map((color) => (
-                            <Badge
-                              key={color}
-                              variant="outline"
-                              className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
-                            >
-                              {color}
-                            </Badge>
-                          ))}
+                          {product.sizes
+                            .filter(
+                              (valor, indice, self) =>
+                                self.indexOf(valor) === indice
+                            )
+                            .map((color) => {
+                              return (
+                                <Badge
+                                  key={color}
+                                  variant="outline"
+                                  className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
+                                >
+                                  {color}
+                                </Badge>
+                              );
+                            })}
                         </div>
                       </div>
                     </div>

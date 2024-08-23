@@ -175,7 +175,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="category">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Categoria</h3>
+                      <h3 className="text-base font-medium mb-2">Categorias</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">
@@ -200,7 +200,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="color">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Color</h3>
+                      <h3 className="text-base font-medium mb-2">Colores</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">
@@ -223,7 +223,7 @@ export function Store() {
                 <Accordion type="single" collapsible>
                   <AccordionItem value="size">
                     <AccordionTrigger className="text-base">
-                      <h3 className="text-base font-medium mb-2">Talla</h3>
+                      <h3 className="text-base font-medium mb-2">Tallas</h3>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">

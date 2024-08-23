@@ -40,6 +40,20 @@ import { Badge } from "@/components/ui/badge";
 import { groupByCodeClothe } from "@/helpers/getProducts";
 import AccordionFilter from "./AccordionFilter";
 import useProduct from "@/hook/useProduct";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
 
 export function Store() {
   const {
@@ -238,6 +252,58 @@ export function Store() {
                             })}
                         </div>
                       </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="w-full flex border-2 border-white items-center justify-center gap-2"
+                            size="icon"
+                          >
+                            <box-icon name="search-alt" color="#fff"></box-icon>
+                            Ver producto
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Referencia del producto</DialogTitle>
+                          </DialogHeader>
+                          <Carousel className="w-full max-w-4xl relative">
+                            <CarouselContent>
+                              {product.clothes.map((clote) => (
+                                <CarouselItem key={clote.code}>
+                                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-center">
+                                    <img
+                                      src={clote.image}
+                                      alt={clote.code}
+                                      width={600}
+                                      height={600}
+                                      className="rounded-lg object-cover w-full aspect-square"
+                                    />
+                                    <div className="grid gap-4">
+                                      <div className="grid gap-2">
+                                        <h3 className="text-xl font-bold">
+                                          {product.name}
+                                        </h3>
+                                        <p className="text-muted-foreground">
+                                          Talla: {clote.sizes}
+                                        </p>
+                                      </div>
+
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-muted-foreground">
+                                          Color: {clote.colors}
+                                        </p>
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                </CarouselItem>
+                              ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
+                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2"/>
+                          </Carousel>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
@@ -265,25 +331,6 @@ function FilterIcon(props) {
       strokeLinejoin="round"
     >
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-    </svg>
-  );
-}
-
-function MountainIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="/public/icono4.png"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
     </svg>
   );
 }

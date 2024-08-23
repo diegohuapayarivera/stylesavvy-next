@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { agruparProductos } from "@/helpers/getProducts";
+import { agruparProductos, groupByCodeClothe } from "@/helpers/getProducts";
 
 export function Store() {
   const [products, setproducts] = useState([]);
@@ -51,16 +51,21 @@ export function Store() {
   const [selectedColor, setSelectedColor] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
 
+  const url =
+    "https://script.google.com/macros/s/AKfycbxlAcQal_3wvGOYMuZtw8_mT1g2ygPRNyh0qf77nxdCNClt2iUxu07lCQFXm70PhX4/exec";
+
   useEffect(() => {
     async function fetchData() {
-      const url =
-        "https://script.google.com/macros/s/AKfycbxWVVD2tOQJ6iueTdGIiO1OGxeghIA7jTKur2xoVgLDLn7jyI3AvTRlmz0ug31ALmT2/exec";
       const respuesta = await fetch(url);
       const productos = await respuesta.json();
 
-      const productosDisponibles = productos.filter(producto => producto.estado === "disponible");
+      const productosDisponibles = productos.filter(
+        (producto) => producto.estado === "disponible"
+      );
       // Agrupa los productos
-      const agrupados = agruparProductos(productosDisponibles);
+      //const agrupados = agruparProductos(productosDisponibles);
+      const agrupados = groupByCodeClothe(productosDisponibles);
+      console.log(agrupados);
       setproducts(agrupados);
     }
 
@@ -118,9 +123,7 @@ export function Store() {
     const categorias = new Set();
 
     productos.forEach((producto) => {
-      producto.categorys.forEach((categoria) => {
-        categorias.add(categoria);
-      });
+      categorias.add(producto.categorys);
     });
 
     return Array.from(categorias);
@@ -130,8 +133,8 @@ export function Store() {
     const colores = new Set();
 
     productos.forEach((producto) => {
-      producto.colors.forEach((color) => {
-        colores.add(color);
+      producto.clothes.forEach((clothe) => {
+        colores.add(clothe.colors);
       });
     });
 
@@ -142,13 +145,30 @@ export function Store() {
     const tallas = new Set();
 
     productos.forEach((producto) => {
-      producto.sizes.forEach((talla) => {
-        tallas.add(talla);
+      producto.clothes.forEach((clothe) => {
+        tallas.add(clothe.sizes);
       });
     });
 
     return Array.from(tallas);
   }
+
+  function colorUnique(clothes) {
+    const colorUniques = new Set();
+    clothes.map((item) => {
+      colorUniques.add(item.colors);
+    });
+    return Array.from(colorUniques);
+  }
+
+  function sizesUnique(clothes) {
+    const sizesUniques = new Set();
+    clothes.map((item) => {
+      sizesUniques.add(item.sizes);
+    });
+    return Array.from(sizesUniques);
+  }
+
   return (
     <div>
       <header className="bg-primary text-primary-foreground py-4 md:py-6 lg:py-8">
@@ -346,13 +366,13 @@ export function Store() {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <div
-                  key={product.id}
+                  key={product.code_clothe}
                   className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
                 >
                   <div className="p-4 grid gap-2">
                     <img
-                      src={product.image}
-                      alt={product.name}
+                      src={product.clothes[0].image}
+                      alt={product.clothes[0].code}
                       width={300}
                       height={300}
                       className="rounded-md object-cover w-full aspect-square"
@@ -365,7 +385,7 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Tallas</h4>
                         <div className="flex gap-2">
-                          {product.sizes.map((size) => (
+                          {sizesUnique(product.clothes).map((size) => (
                             <Badge
                               key={size}
                               variant="outline"
@@ -379,15 +399,17 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Colores</h4>
                         <div className="flex flex-wrap gap-2">
-                          {product.colors.map((color) => (
-                            <Badge
-                              key={color}
-                              variant="outline"
-                              className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
-                            >
-                              {color}
-                            </Badge>
-                          ))}
+                          {colorUnique(product.clothes).map((color) => {
+                            return (
+                              <Badge
+                                key={color}
+                                variant="outline"
+                                className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
+                              >
+                                {color}
+                              </Badge>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>

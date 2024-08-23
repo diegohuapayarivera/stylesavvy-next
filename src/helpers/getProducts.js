@@ -33,4 +33,49 @@ function agruparProductos(productos) {
   return agrupados;
 }
 
-module.exports = { agruparProductos };
+
+function groupByCodeClothe(data) {
+  const result = [];
+
+  data.forEach((item) => {
+    // Buscar si ya existe un objeto con el mismo code_clothe
+    let existing = result.find((obj) => obj.code_clothe === item.code_clothe);
+
+    if (existing) {
+      // Si existe, agregar el nuevo "clothe" al array "clothes"
+      existing.colors.push(item.colors);
+      existing.sizes.push(item.sizes);
+      
+      existing.clothes.push({
+        code: item.code,
+        sizes: item.sizes,
+        colors: item.colors,
+        image: item.image,
+      });
+    } else {
+      // Si no existe, crear un nuevo objeto y agregarlo al resultado
+      result.push({
+        code_clothe: item.code_clothe,
+        name: item.name,
+        price: item.price,
+        categorys: item.categorys,
+        colors: [item.colors],
+        sizes: [item.sizes],
+        estado: item.estado,
+        clothes: [
+          {
+            code: item.code,
+            sizes: item.sizes,
+            colors: item.colors,
+            image: item.image,
+          },
+        ],
+      });
+    }
+  });
+
+  return result;
+}
+
+
+module.exports = { agruparProductos, groupByCodeClothe };

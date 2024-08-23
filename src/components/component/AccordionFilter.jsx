@@ -18,7 +18,7 @@ function AccordionFilter({title, categoryes, handleCategoryChange, selectedCateg
               >
                 <Checkbox
                   checked={selectedCategory.includes(category)}
-                  onCheckedChange={() => handleCategoryChange(category)}
+                  onCheckedChange={() => handleCategoryChange(category, title)}
                 />
                 {category}
               </Label>

@@ -26,31 +26,31 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { agruparProductos, groupByCodeClothe } from "@/helpers/getProducts";
+import { groupByCodeClothe } from "@/helpers/getProducts";
 import AccordionFilter from "./AccordionFilter";
+import useProduct from "@/hook/useProduct";
 
 export function Store() {
-  const [products, setproducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selectedColor, setSelectedColor] = useState([]);
-  const [selectedSize, setSelectedSize] = useState([]);
+  const {
+    products,
+    setproducts,
+    selectedCategory,
+    selectedColor,
+    selectedSize,
+    getCategoryesUniques,
+    handleCategoryesChange,
+  } = useProduct();
 
   const url =
     "https://script.google.com/macros/s/AKfycbxlAcQal_3wvGOYMuZtw8_mT1g2ygPRNyh0qf77nxdCNClt2iUxu07lCQFXm70PhX4/exec";
@@ -63,15 +63,12 @@ export function Store() {
       const productosDisponibles = productos.filter(
         (producto) => producto.estado === "disponible"
       );
-      // Agrupa los productos
-      //const agrupados = agruparProductos(productosDisponibles);
       const agrupados = groupByCodeClothe(productosDisponibles);
-      console.log(agrupados);
       setproducts(agrupados);
     }
 
     fetchData();
-  }, []);
+  }, [setproducts]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -98,77 +95,6 @@ export function Store() {
       return true;
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
-  const handleCategoryChange = (category) => {
-    if (selectedCategory.includes(category)) {
-      setSelectedCategory(selectedCategory.filter((item) => item !== category));
-    } else {
-      setSelectedCategory([...selectedCategory, category]);
-    }
-  };
-  const handleColorChange = (color) => {
-    if (selectedColor.includes(color)) {
-      setSelectedColor(selectedColor.filter((item) => item !== color));
-    } else {
-      setSelectedColor([...selectedColor, color]);
-    }
-  };
-  const handleSizeChange = (size) => {
-    if (selectedSize.includes(size)) {
-      setSelectedSize(selectedSize.filter((item) => item !== size));
-    } else {
-      setSelectedSize([...selectedSize, size]);
-    }
-  };
-
-  function obtenerCategoriasUnicas(productos) {
-    const categorias = new Set();
-
-    productos.forEach((producto) => {
-      categorias.add(producto.categorys);
-    });
-
-    return Array.from(categorias);
-  }
-
-  function obtenerColoresUnicas(productos) {
-    const colores = new Set();
-
-    productos.forEach((producto) => {
-      producto.clothes.forEach((clothe) => {
-        colores.add(clothe.colors);
-      });
-    });
-
-    return Array.from(colores);
-  }
-
-  function obtenerTallasUnicas(productos) {
-    const tallas = new Set();
-
-    productos.forEach((producto) => {
-      producto.clothes.forEach((clothe) => {
-        tallas.add(clothe.sizes);
-      });
-    });
-
-    return Array.from(tallas);
-  }
-
-  function colorUnique(clothes) {
-    const colorUniques = new Set();
-    clothes.map((item) => {
-      colorUniques.add(item.colors);
-    });
-    return Array.from(colorUniques);
-  }
-
-  function sizesUnique(clothes) {
-    const sizesUniques = new Set();
-    clothes.map((item) => {
-      sizesUniques.add(item.sizes);
-    });
-    return Array.from(sizesUniques);
-  }
 
   return (
     <div>
@@ -194,22 +120,22 @@ export function Store() {
                 <h2 className="text-3xl font-bold mb-4">Filtros</h2>
                 <AccordionFilter
                   title={"Categoria"}
-                  categoryes={obtenerCategoriasUnicas(products)}
-                  handleCategoryChange={handleCategoryChange}
+                  categoryes={getCategoryesUniques("Categoria")}
+                  handleCategoryChange={handleCategoryesChange}
                   selectedCategory={selectedCategory}
                 />
 
                 <AccordionFilter
                   title={"Color"}
-                  categoryes={obtenerColoresUnicas(products)}
-                  handleCategoryChange={handleColorChange}
+                  categoryes={getCategoryesUniques("Color")}
+                  handleCategoryChange={handleCategoryesChange}
                   selectedCategory={selectedColor}
                 />
 
                 <AccordionFilter
                   title={"Talla"}
-                  categoryes={obtenerTallasUnicas(products)}
-                  handleCategoryChange={handleSizeChange}
+                  categoryes={getCategoryesUniques("Talla")}
+                  handleCategoryChange={handleCategoryesChange}
                   selectedCategory={selectedSize}
                 />
               </div>
@@ -230,21 +156,21 @@ export function Store() {
                   <div className="p-4 grid gap-6">
                     <AccordionFilter
                       title={"Categoria"}
-                      categoryes={obtenerCategoriasUnicas(products)}
-                      handleCategoryChange={handleCategoryChange}
+                      categoryes={getCategoryesUniques("Categoria")}
+                      handleCategoryChange={handleCategoryesChange}
                       selectedCategory={selectedCategory}
                     />
                     <AccordionFilter
                       title={"Color"}
-                      categoryes={obtenerColoresUnicas(products)}
-                      handleCategoryChange={handleColorChange}
+                      categoryes={getCategoryesUniques("Color")}
+                      handleCategoryChange={handleCategoryesChange}
                       selectedCategory={selectedColor}
                     />
 
                     <AccordionFilter
                       title={"Talla"}
-                      categoryes={obtenerTallasUnicas(products)}
-                      handleCategoryChange={handleSizeChange}
+                      categoryes={getCategoryesUniques("Talla")}
+                      handleCategoryChange={handleCategoryesChange}
                       selectedCategory={selectedSize}
                     />
                   </div>
@@ -275,31 +201,41 @@ export function Store() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Tallas</h4>
                         <div className="flex gap-2">
-                          {sizesUnique(product.clothes).map((size) => (
-                            <Badge
-                              key={size}
-                              variant="outline"
-                              className="px-2 py-1"
-                            >
-                              {size}
-                            </Badge>
-                          ))}
+                          {product.colors
+                            .filter(
+                              (valor, indice, self) =>
+                                self.indexOf(valor) === indice
+                            )
+                            .map((size) => (
+                              <Badge
+                                key={size}
+                                variant="outline"
+                                className="px-2 py-1"
+                              >
+                                {size}
+                              </Badge>
+                            ))}
                         </div>
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold mb-1">Colores</h4>
                         <div className="flex flex-wrap gap-2">
-                          {colorUnique(product.clothes).map((color) => {
-                            return (
-                              <Badge
-                                key={color}
-                                variant="outline"
-                                className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
-                              >
-                                {color}
-                              </Badge>
-                            );
-                          })}
+                          {product.sizes
+                            .filter(
+                              (valor, indice, self) =>
+                                self.indexOf(valor) === indice
+                            )
+                            .map((color) => {
+                              return (
+                                <Badge
+                                  key={color}
+                                  variant="outline"
+                                  className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
+                                >
+                                  {color}
+                                </Badge>
+                              );
+                            })}
                         </div>
                       </div>
                     </div>

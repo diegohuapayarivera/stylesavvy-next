@@ -258,7 +258,21 @@ export function Store() {
                             className="w-full flex border-2 border-white items-center justify-center gap-2"
                             size="icon"
                           >
-                            <box-icon name="search-alt" color="#fff"></box-icon>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="1em"
+                              height="1em"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                fill="none"
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0m18 11l-6-6"
+                              />
+                            </svg>
                             Ver producto
                           </Button>
                         </DialogTrigger>
@@ -293,14 +307,13 @@ export function Store() {
                                           Color: {clote.colors}
                                         </p>
                                       </div>
-                                      
                                     </div>
                                   </div>
                                 </CarouselItem>
                               ))}
                             </CarouselContent>
                             <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2"/>
+                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
                           </Carousel>
                         </DialogContent>
                       </Dialog>

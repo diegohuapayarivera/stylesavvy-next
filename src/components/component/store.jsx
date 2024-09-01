@@ -199,7 +199,7 @@ export function Store() {
                   key={product.code_clothe}
                   className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
                 >
-                  <div className="p-4 grid gap-2">
+                  <div className="p-4 grid gap-2 border-2 border-muted rounded-md">
                     <img
                       src={product.clothes[0].image}
                       alt={product.clothes[0].code}
@@ -213,40 +213,40 @@ export function Store() {
                     </div>
                     <div className="grid gap-2">
                       <div>
-                        <h4 className="text-sm font-semibold mb-1">Tallas</h4>
-                        <div className="flex gap-2">
+                        <h4 className="text-sm font-semibold mb-1">Colores</h4>
+                        <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
                           {product.colors
                             .filter(
                               (valor, indice, self) =>
                                 self.indexOf(valor) === indice
                             )
-                            .map((size) => (
+                            .map((color) => (
                               <Badge
-                                key={size}
+                                key={color}
                                 variant="outline"
                                 className="px-2 py-1"
                               >
-                                {size}
+                                {color}
                               </Badge>
                             ))}
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold mb-1">Colores</h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="text-sm font-semibold mb-1">Tallas</h4>
+                        <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
                           {product.sizes
                             .filter(
                               (valor, indice, self) =>
                                 self.indexOf(valor) === indice
                             )
-                            .map((color) => {
+                            .map((size) => {
                               return (
                                 <Badge
-                                  key={color}
+                                  key={size}
                                   variant="outline"
-                                  className={`px-2 py-1 bg-${color}-500 text-${color}-50`}
+                                  className={`px-2 py-1 bg-${size}-500 text-${size}-50`}
                                 >
-                                  {color}
+                                  {size}
                                 </Badge>
                               );
                             })}
@@ -276,9 +276,11 @@ export function Store() {
                             Ver producto
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
+                        <DialogContent className="text-secondary sm:max-w-[425px] bg-primary">
                           <DialogHeader>
-                            <DialogTitle>Referencia del producto</DialogTitle>
+                            <DialogTitle className="">
+                              Colores y tallas disponibles
+                            </DialogTitle>
                           </DialogHeader>
                           <Carousel className="w-full max-w-4xl relative">
                             <CarouselContent>
@@ -297,15 +299,11 @@ export function Store() {
                                         <h3 className="text-xl font-bold">
                                           {product.name}
                                         </h3>
-                                        <p className="text-muted-foreground">
-                                          Talla: {clote.sizes}
-                                        </p>
+                                        <p>Talla: {clote.sizes}</p>
                                       </div>
 
                                       <div className="flex items-center gap-2">
-                                        <p className="text-muted-foreground">
-                                          Color: {clote.colors}
-                                        </p>
+                                        <p>Color: {clote.colors}</p>
                                       </div>
                                     </div>
                                   </div>

@@ -15,7 +15,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 
-function CartItem({ cart }) {
+function CartItem({ cart, deleteItem }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
@@ -23,6 +23,8 @@ function CartItem({ cart }) {
     () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
     [cart]
   );
+
+  const isDisabled = !name || !phone;
 
   const encodedMessage = useMemo(() => {
     let message = `Hola StyleSavvy, me llamo ${name} y estoy interesado en estos productos:%0A%0A`;
@@ -77,7 +79,11 @@ function CartItem({ cart }) {
                   {product.item.sizes}
                 </div>
               </div>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteItem(product.item.code)}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="1em"
@@ -144,7 +150,7 @@ function CartItem({ cart }) {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Juan Perez Soto"
-                      className="col-span-3"
+                      className="col-span-3 text-primary"
                     />
                   </div>
                   <div className="grid items-center grid-cols-4 gap-4">
@@ -155,13 +161,20 @@ function CartItem({ cart }) {
                       id="phone"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="col-span-3"
+                      className="col-span-3 text-primary"
                       placeholder="999888777"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <a href={encodedMessage} target="_blank">
+                  <a
+                    href={encodedMessage}
+                    target="_blank"
+                    style={{
+                      pointerEvents: isDisabled ? "none" : "auto",
+                      color: isDisabled ? "gray" : "white",
+                    }}
+                  >
                     Enviar mensaje por WhatsApp
                   </a>
                 </DialogFooter>

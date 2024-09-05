@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function useProduct() {
   const [products, setproducts] = useState([]);
@@ -12,7 +13,6 @@ export default function useProduct() {
       (productoItem) => productoItem.item.code === item.code
     );
     if (itemExists) {
-      console.log("igualito");
       const updateItem = cart.map((productoItem) =>
         productoItem.item.code === item.code
           ? {
@@ -31,8 +31,15 @@ export default function useProduct() {
       };
       setCart([...cart, newItem]);
     }
-    console.log(cart);
+    toast.success("Producto agregado")
   };
+
+  function deleteItem(codeItem) {
+    setCart(cart.filter(
+      (carItemExist) => carItemExist.item.code !== codeItem
+    ));
+    toast.error("Producto Eliminado")
+  }
 
   const getCategoryesUniques = (type) => {
     const result = new Set();
@@ -98,6 +105,7 @@ export default function useProduct() {
     selectedSize,
     cart,
     addItem,
+    deleteItem,
     getCategoryesUniques,
     handleCategoryesChange,
   };

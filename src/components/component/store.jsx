@@ -26,7 +26,7 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 
 import {
@@ -62,6 +62,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import CartItem from "./Cart";
+import { Toaster } from "react-hot-toast";
 
 export function Store() {
   const {
@@ -72,6 +73,7 @@ export function Store() {
     selectedSize,
     cart,
     addItem,
+    deleteItem,
     getCategoryesUniques,
     handleCategoryesChange,
   } = useProduct();
@@ -120,6 +122,8 @@ export function Store() {
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
 
+
+
   return (
     <div>
       <header className="py-4 bg-primary text-primary-foreground md:py-6 lg:py-8">
@@ -154,7 +158,7 @@ export function Store() {
                 <DrawerHeader>
                   <DrawerTitle>Carrito</DrawerTitle>
                 </DrawerHeader>
-                <CartItem cart={cart} />
+                <CartItem cart={cart} deleteItem={deleteItem}/>
               </DrawerContent>
             </Drawer>
           </nav>
@@ -249,7 +253,7 @@ export function Store() {
                   <DrawerHeader>
                     <DrawerTitle>Carrito</DrawerTitle>
                   </DrawerHeader>
-                  <CartItem cart={cart} />
+                  <CartItem cart={cart}  deleteItem={deleteItem}/>
                 </DrawerContent>
               </Drawer>
             </div>
@@ -392,6 +396,7 @@ export function Store() {
           </div>
         </div>
       </div>
+      <Toaster/>
     </div>
   );
 }

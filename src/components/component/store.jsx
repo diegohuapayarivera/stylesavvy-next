@@ -43,8 +43,6 @@ import useProduct from "@/hook/useProduct";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -63,13 +61,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Separator } from "../ui/separator";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+import CartItem from "./Cart";
 
 export function Store() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const {
     products,
     setproducts,
@@ -126,11 +120,6 @@ export function Store() {
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
 
-  const totalAmount = useMemo(
-    () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
-    [cart]
-  );
-
   return (
     <div>
       <header className="py-4 bg-primary text-primary-foreground md:py-6 lg:py-8">
@@ -165,115 +154,7 @@ export function Store() {
                 <DrawerHeader>
                   <DrawerTitle>Carrito</DrawerTitle>
                 </DrawerHeader>
-                {cart.length === 0 ? (
-                  <div className="p-4 text-center">
-                    <p className="text-muted-foreground">
-                      Tu carrito esta vacio.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {cart.map((product) => (
-                      <div
-                        key={product.item.image}
-                        className="flex items-center gap-4"
-                      >
-                        <img
-                          src={product.item.image}
-                          alt={product.item.name}
-                          width={20}
-                          height={20}
-                          className="object-cover w-10 pl-2 rounded-md aspect-square"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">
-                              {product.name} - {product.item.colors}
-                            </h3>
-                            <span className="font-semibold">
-                              ${(product.price * product.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>Cantidad: </span>
-                            {product.quantity}
-                            <span>Talla: </span>
-                            {product.item.sizes}
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="icon">
-                          <box-icon name="trash" color="#000"></box-icon>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {cart.length > 0 && (
-                  <>
-                    <Separator className="my-4" />
-                    <div className="flex items-center justify-between px-4 py-2 bg-muted rounded-b-md">
-                      <span className="font-semibold">Total:</span>
-                      <span className="font-semibold">
-                        ${totalAmount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="px-4 py-4">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            className="flex items-center justify-center w-full gap-2 border-2 border-white"
-                            size="icon"
-                          >
-                            <box-icon name="basket" color="#fff"></box-icon>
-                            Comprar
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>
-                              Escogiste el outfit Perfecto 😍
-                            </DialogTitle>
-                            <DialogDescription>
-                              Ahora necesitamos que coloques tu nombre y celular
-                              para hacer el pedido✨.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid items-center grid-cols-4 gap-4">
-                              <Label htmlFor="name" className="text-right">
-                                Nombre
-                              </Label>
-                              <Input
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Juan Perez Soto"
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid items-center grid-cols-4 gap-4">
-                              <Label htmlFor="phone" className="text-right">
-                                Celular
-                              </Label>
-                              <Input
-                                id="phone"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                className="col-span-3"
-                                placeholder="+51999888777"
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="submit" onClick={() => sendCart()}>
-                              Checkout
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </>
-                )}
+                <CartItem cart={cart} />
               </DrawerContent>
             </Drawer>
           </nav>
@@ -343,6 +224,34 @@ export function Store() {
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1em"
+                      height="1em"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M17 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2M1 2v2h2l3.6 7.59l-1.36 2.45c-.15.28-.24.61-.24.96a2 2 0 0 0 2 2h12v-2H7.42a.25.25 0 0 1-.25-.25q0-.075.03-.12L8.1 13h7.45c.75 0 1.41-.42 1.75-1.03l3.58-6.47c.07-.16.12-.33.12-.5a1 1 0 0 0-1-1H5.21l-.94-2M7 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2"
+                      />
+                    </svg>
+                    Carrito
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="w-[400px] mx-auto">
+                  <DrawerHeader>
+                    <DrawerTitle>Carrito</DrawerTitle>
+                  </DrawerHeader>
+                  <CartItem cart={cart} />
+                </DrawerContent>
+              </Drawer>
             </div>
           </div>
           <div className="grid gap-8">
@@ -429,7 +338,7 @@ export function Store() {
                             Ver producto
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="text-secondary sm:max-w-[425px] bg-primary">
+                        <DialogContent className="text-secondary sm:max-w-[425px] max-w-[400px] bg-primary">
                           <DialogHeader>
                             <DialogTitle className="">
                               Colores y tallas disponibles
@@ -439,13 +348,13 @@ export function Store() {
                             <CarouselContent>
                               {product.clothes.map((clote) => (
                                 <CarouselItem key={clote.code}>
-                                  <div className="grid items-center grid-cols-1 gap-6 md:grid-cols-2">
+                                  <div className="grid items-center grid-cols-1 gap-6 md:grid-cols-2 ">
                                     <img
                                       src={clote.image}
                                       alt={clote.code}
-                                      width={600}
-                                      height={600}
-                                      className="object-cover w-full rounded-lg aspect-square"
+                                      width={400}
+                                      height={400}
+                                      className="object-cover rounded-lg aspect-square"
                                     />
                                     <div className="grid gap-4">
                                       <div className="grid gap-2">

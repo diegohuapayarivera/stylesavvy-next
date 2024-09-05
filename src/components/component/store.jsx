@@ -26,7 +26,7 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -43,6 +43,8 @@ import useProduct from "@/hook/useProduct";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -54,14 +56,28 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Separator } from "../ui/separator";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
 export function Store() {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const {
     products,
     setproducts,
     selectedCategory,
     selectedColor,
     selectedSize,
+    cart,
+    addItem,
     getCategoryesUniques,
     handleCategoryesChange,
   } = useProduct();
@@ -110,28 +126,165 @@ export function Store() {
     });
   }, [selectedCategory, selectedColor, selectedSize, products]);
 
+  const totalAmount = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
+    [cart]
+  );
+
   return (
     <div>
-      <header className="bg-primary text-primary-foreground py-4 md:py-6 lg:py-8">
-        <div className="container px-4 md:px-6 max-w-10xl mx-auto flex items-center justify-between">
+      <header className="py-4 bg-primary text-primary-foreground md:py-6 lg:py-8">
+        <div className="container flex items-center justify-between px-4 mx-auto md:px-6 max-w-10xl">
           <Link href="#" prefetch={false}>
             <div className="flex items-center gap-2">
-              <img src="/icono4.png" alt="icono" className="h-12 w-12" />
-              <span className="text-lg md:text-xl lg:text-3xl font-bold">
+              <img src="/icono4.png" alt="icono" className="w-12 h-12" />
+              <span className="text-lg font-bold md:text-xl lg:text-3xl">
                 StyleSavvy
               </span>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-4 lg:gap-6" />
-          <div className="md:hidden" />
+          <nav className="items-center hidden gap-4 border-white md:flex lg:gap-6">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button className="flex items-center justify-center w-full gap-2 border-2 border-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M17 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2M1 2v2h2l3.6 7.59l-1.36 2.45c-.15.28-.24.61-.24.96a2 2 0 0 0 2 2h12v-2H7.42a.25.25 0 0 1-.25-.25q0-.075.03-.12L8.1 13h7.45c.75 0 1.41-.42 1.75-1.03l3.58-6.47c.07-.16.12-.33.12-.5a1 1 0 0 0-1-1H5.21l-.94-2M7 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2"
+                    />
+                  </svg>
+                  Carrito
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="w-[400px] mx-auto">
+                <DrawerHeader>
+                  <DrawerTitle>Carrito</DrawerTitle>
+                </DrawerHeader>
+                {cart.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className="text-muted-foreground">
+                      Tu carrito esta vacio.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {cart.map((product) => (
+                      <div
+                        key={product.item.image}
+                        className="flex items-center gap-4"
+                      >
+                        <img
+                          src={product.item.image}
+                          alt={product.item.name}
+                          width={20}
+                          height={20}
+                          className="object-cover w-10 pl-2 rounded-md aspect-square"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">
+                              {product.name} - {product.item.colors}
+                            </h3>
+                            <span className="font-semibold">
+                              ${(product.price * product.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Cantidad: </span>
+                            {product.quantity}
+                            <span>Talla: </span>
+                            {product.item.sizes}
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon">
+                          <box-icon name="trash" color="#000"></box-icon>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {cart.length > 0 && (
+                  <>
+                    <Separator className="my-4" />
+                    <div className="flex items-center justify-between px-4 py-2 bg-muted rounded-b-md">
+                      <span className="font-semibold">Total:</span>
+                      <span className="font-semibold">
+                        ${totalAmount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="px-4 py-4">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="flex items-center justify-center w-full gap-2 border-2 border-white"
+                            size="icon"
+                          >
+                            <box-icon name="basket" color="#fff"></box-icon>
+                            Comprar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Escogiste el outfit Perfecto 😍
+                            </DialogTitle>
+                            <DialogDescription>
+                              Ahora necesitamos que coloques tu nombre y celular
+                              para hacer el pedido✨.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid items-center grid-cols-4 gap-4">
+                              <Label htmlFor="name" className="text-right">
+                                Nombre
+                              </Label>
+                              <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Juan Perez Soto"
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid items-center grid-cols-4 gap-4">
+                              <Label htmlFor="phone" className="text-right">
+                                Celular
+                              </Label>
+                              <Input
+                                id="phone"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="col-span-3"
+                                placeholder="+51999888777"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit" onClick={() => sendCart()}>
+                              Checkout
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </>
+                )}
+              </DrawerContent>
+            </Drawer>
+          </nav>
         </div>
       </header>
-      <div className="container px-4 md:px-6 max-w-6xl mx-auto py-12">
+      <div className="container max-w-6xl px-4 py-12 mx-auto md:px-6">
         <div className="grid md:grid-cols-[240px_1fr] gap-8">
           <div>
             <div>
-              <div className="hidden md:grid gap-6">
-                <h2 className="text-3xl font-bold mb-4">Filtros</h2>
+              <div className="hidden gap-6 md:grid">
+                <h2 className="mb-4 text-3xl font-bold">Filtros</h2>
                 <AccordionFilter
                   title={"Categoria"}
                   categoryes={getCategoryesUniques("Categoria")}
@@ -154,7 +307,7 @@ export function Store() {
                 />
               </div>
             </div>
-            <div className="md:hidden flex items-center justify-between">
+            <div className="flex items-center justify-between md:hidden">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -167,7 +320,7 @@ export function Store() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[300px]">
-                  <div className="p-4 grid gap-6">
+                  <div className="grid gap-6 p-4">
                     <AccordionFilter
                       title={"Categoria"}
                       categoryes={getCategoryesUniques("Categoria")}
@@ -193,27 +346,27 @@ export function Store() {
             </div>
           </div>
           <div className="grid gap-8">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
               {filteredProducts.map((product) => (
                 <div
                   key={product.code_clothe}
-                  className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
+                  className="overflow-hidden rounded-lg shadow-sm bg-card text-card-foreground"
                 >
-                  <div className="p-4 grid gap-2 border-2 border-muted rounded-md">
+                  <div className="grid gap-2 p-4 border-2 rounded-md border-muted">
                     <img
                       src={product.clothes[0].image}
                       alt={product.clothes[0].code}
                       width={300}
                       height={300}
-                      className="rounded-md object-cover w-full aspect-square"
+                      className="object-cover w-full rounded-md aspect-square"
                     />
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">{product.name}</h3>
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
                       <span className="font-semibold">S/{product.price}</span>
                     </div>
                     <div className="grid gap-2">
                       <div>
-                        <h4 className="text-sm font-semibold mb-1">Colores</h4>
+                        <h4 className="mb-1 text-sm font-semibold">Colores</h4>
                         <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
                           {product.colors
                             .filter(
@@ -232,7 +385,7 @@ export function Store() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold mb-1">Tallas</h4>
+                        <h4 className="mb-1 text-sm font-semibold">Tallas</h4>
                         <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
                           {product.sizes
                             .filter(
@@ -255,7 +408,7 @@ export function Store() {
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
-                            className="w-full flex border-2 border-white items-center justify-center gap-2"
+                            className="flex items-center justify-center w-full gap-2 border-2 border-white"
                             size="icon"
                           >
                             <svg
@@ -282,17 +435,17 @@ export function Store() {
                               Colores y tallas disponibles
                             </DialogTitle>
                           </DialogHeader>
-                          <Carousel className="w-full max-w-4xl relative">
+                          <Carousel className="relative w-full max-w-4xl">
                             <CarouselContent>
                               {product.clothes.map((clote) => (
                                 <CarouselItem key={clote.code}>
-                                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-center">
+                                  <div className="grid items-center grid-cols-1 gap-6 md:grid-cols-2">
                                     <img
                                       src={clote.image}
                                       alt={clote.code}
                                       width={600}
                                       height={600}
-                                      className="rounded-lg object-cover w-full aspect-square"
+                                      className="object-cover w-full rounded-lg aspect-square"
                                     />
                                     <div className="grid gap-4">
                                       <div className="grid gap-2">
@@ -305,13 +458,20 @@ export function Store() {
                                       <div className="flex items-center gap-2">
                                         <p>Color: {clote.colors}</p>
                                       </div>
+                                      <Button
+                                        className="bg-secondary text-primary hover:bg-secondary"
+                                        type="submit"
+                                        onClick={() => addItem(clote, product)}
+                                      >
+                                        Agregar al carrito
+                                      </Button>
                                     </div>
                                   </div>
                                 </CarouselItem>
                               ))}
                             </CarouselContent>
-                            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
+                            <CarouselPrevious className="absolute -translate-y-1/2 left-4 top-1/2" />
+                            <CarouselNext className="absolute -translate-y-1/2 right-4 top-1/2" />
                           </Carousel>
                         </DialogContent>
                       </Dialog>

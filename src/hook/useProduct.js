@@ -1,10 +1,38 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function useProduct() {
   const [products, setproducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedColor, setSelectedColor] = useState([]);
   const [selectedSize, setSelectedSize] = useState([]);
+  const [cart, setCart] = useState([]);
+
+  const addItem = (item, product) => {
+    const itemExists = cart.find(
+      (productoItem) => productoItem.item.code === item.code
+    );
+    if (itemExists) {
+      console.log("igualito");
+      const updateItem = cart.map((productoItem) =>
+        productoItem.item.code === item.code
+          ? {
+              ...productoItem,
+              quantity: productoItem.quantity + 1,
+            }
+          : productoItem
+      );
+      setCart(updateItem);
+    } else {
+      const newItem = {
+        item,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+      };
+      setCart([...cart, newItem]);
+    }
+    console.log(cart);
+  };
 
   const getCategoryesUniques = (type) => {
     const result = new Set();
@@ -68,6 +96,8 @@ export default function useProduct() {
     selectedCategory,
     selectedColor,
     selectedSize,
+    cart,
+    addItem,
     getCategoryesUniques,
     handleCategoryesChange,
   };

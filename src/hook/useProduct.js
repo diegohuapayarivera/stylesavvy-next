@@ -21,7 +21,7 @@ export default function useProduct() {
         (productoItem) => productoItem.quantity >= QUANTITY_ITEM_MAX_SIZE
       );
       if (itemExists){
-        toast.error("¡Ups! Has superado la cantidad máxima permitida. 😅");
+        toast.error("¡Ups! Has superado la cantidad máxima permitida de este producto. 😅");
         return
       }
       const updateItem = cart.map((productoItem) =>
@@ -35,7 +35,7 @@ export default function useProduct() {
       setCart(updateItem);
     } else {
       if (cart.length >= ITEM_MAX_SIZE) {
-        toast.error("¡Lo sentimos! Has superado el límite de este producto. 😔");
+        toast.error("¡Lo sentimos! Has superado el límite en el carrito. 😔");
         return;
       }
       const newItem = {

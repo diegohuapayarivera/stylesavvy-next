@@ -26,7 +26,7 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 
 import {
@@ -36,24 +36,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { groupByCodeClothe } from "@/helpers/getProducts";
 import AccordionFilter from "./AccordionFilter";
 import useProduct from "@/hook/useProduct";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "../ui/carousel";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import CartItem from "./Cart";
+import { Toaster } from "react-hot-toast";
+import ProductItem from "./ProductItem";
 
 export function Store() {
   const {
@@ -62,12 +58,16 @@ export function Store() {
     selectedCategory,
     selectedColor,
     selectedSize,
+    cart,
+    setCart,
+    addItem,
+    deleteItem,
     getCategoryesUniques,
     handleCategoryesChange,
   } = useProduct();
 
   const url =
-    "https://script.google.com/macros/s/AKfycbxlAcQal_3wvGOYMuZtw8_mT1g2ygPRNyh0qf77nxdCNClt2iUxu07lCQFXm70PhX4/exec";
+    "https://script.google.com/macros/s/AKfycbwTwzwDRs5BqGVkKoe8UzxZkeftP2Aj5kyS2Ni_yAMmWaLbDkFprUVWrznSUEpB5rj-/exec";
 
   useEffect(() => {
     async function fetchData() {
@@ -84,54 +84,52 @@ export function Store() {
     fetchData();
   }, [setproducts]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      if (
-        selectedCategory.length > 0 &&
-        !selectedCategory.some((category) =>
-          product.categorys.includes(category)
-        )
-      ) {
-        return false;
-      }
-      if (
-        selectedColor.length > 0 &&
-        !selectedColor.some((color) => product.colors.includes(color))
-      ) {
-        return false;
-      }
-      if (
-        selectedSize.length > 0 &&
-        !selectedSize.some((size) => product.sizes.includes(size))
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [selectedCategory, selectedColor, selectedSize, products]);
-
   return (
     <div>
-      <header className="bg-primary text-primary-foreground py-4 md:py-6 lg:py-8">
-        <div className="container px-4 md:px-6 max-w-10xl mx-auto flex items-center justify-between">
+      <header className="py-4 bg-primary text-primary-foreground md:py-6 lg:py-8">
+        <div className="container flex items-center justify-between px-4 mx-auto md:px-6 max-w-10xl">
           <Link href="#" prefetch={false}>
             <div className="flex items-center gap-2">
-              <img src="/icono4.png" alt="icono" className="h-12 w-12" />
-              <span className="text-lg md:text-xl lg:text-3xl font-bold">
+              <img src="/icono4.png" alt="icono" className="w-12 h-12" />
+              <span className="text-lg font-bold md:text-xl lg:text-3xl">
                 StyleSavvy
               </span>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-4 lg:gap-6" />
-          <div className="md:hidden" />
+          <nav className="items-center hidden gap-4 border-white md:flex lg:gap-6">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button className="flex items-center justify-center w-full gap-2 border-2 border-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M17 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2M1 2v2h2l3.6 7.59l-1.36 2.45c-.15.28-.24.61-.24.96a2 2 0 0 0 2 2h12v-2H7.42a.25.25 0 0 1-.25-.25q0-.075.03-.12L8.1 13h7.45c.75 0 1.41-.42 1.75-1.03l3.58-6.47c.07-.16.12-.33.12-.5a1 1 0 0 0-1-1H5.21l-.94-2M7 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2"
+                    />
+                  </svg>
+                  Carrito
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="w-[400px] mx-auto">
+                <DrawerHeader>
+                  <DrawerTitle>Carrito</DrawerTitle>
+                </DrawerHeader>
+                <CartItem cart={cart} deleteItem={deleteItem} setCart={setCart} />
+              </DrawerContent>
+            </Drawer>
+          </nav>
         </div>
       </header>
-      <div className="container px-4 md:px-6 max-w-6xl mx-auto py-12">
+      <div className="container max-w-6xl px-4 py-12 mx-auto md:px-6">
         <div className="grid md:grid-cols-[240px_1fr] gap-8">
           <div>
             <div>
-              <div className="hidden md:grid gap-6">
-                <h2 className="text-3xl font-bold mb-4">Filtros</h2>
+              <div className="hidden gap-6 md:grid">
+                <h2 className="mb-4 text-3xl font-bold">Filtros</h2>
                 <AccordionFilter
                   title={"Categoria"}
                   categoryes={getCategoryesUniques("Categoria")}
@@ -154,7 +152,7 @@ export function Store() {
                 />
               </div>
             </div>
-            <div className="md:hidden flex items-center justify-between">
+            <div className="flex items-center justify-between md:hidden">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -167,7 +165,7 @@ export function Store() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[300px]">
-                  <div className="p-4 grid gap-6">
+                  <div className="grid gap-6 p-4">
                     <AccordionFilter
                       title={"Categoria"}
                       categoryes={getCategoryesUniques("Categoria")}
@@ -190,139 +188,50 @@ export function Store() {
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1em"
+                      height="1em"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M17 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2M1 2v2h2l3.6 7.59l-1.36 2.45c-.15.28-.24.61-.24.96a2 2 0 0 0 2 2h12v-2H7.42a.25.25 0 0 1-.25-.25q0-.075.03-.12L8.1 13h7.45c.75 0 1.41-.42 1.75-1.03l3.58-6.47c.07-.16.12-.33.12-.5a1 1 0 0 0-1-1H5.21l-.94-2M7 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2"
+                      />
+                    </svg>
+                    Carrito
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="w-[400px] mx-auto">
+                  <DrawerHeader>
+                    <DrawerTitle>Carrito</DrawerTitle>
+                  </DrawerHeader>
+                  <CartItem cart={cart} deleteItem={deleteItem} />
+                </DrawerContent>
+              </Drawer>
             </div>
           </div>
           <div className="grid gap-8">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.code_clothe}
-                  className="bg-card text-card-foreground rounded-lg overflow-hidden shadow-sm"
-                >
-                  <div className="p-4 grid gap-2 border-2 border-muted rounded-md">
-                    <img
-                      src={product.clothes[0].image}
-                      alt={product.clothes[0].code}
-                      width={300}
-                      height={300}
-                      className="rounded-md object-cover w-full aspect-square"
-                    />
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">{product.name}</h3>
-                      <span className="font-semibold">S/{product.price}</span>
-                    </div>
-                    <div className="grid gap-2">
-                      <div>
-                        <h4 className="text-sm font-semibold mb-1">Colores</h4>
-                        <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
-                          {product.colors
-                            .filter(
-                              (valor, indice, self) =>
-                                self.indexOf(valor) === indice
-                            )
-                            .map((color) => (
-                              <Badge
-                                key={color}
-                                variant="outline"
-                                className="px-2 py-1"
-                              >
-                                {color}
-                              </Badge>
-                            ))}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold mb-1">Tallas</h4>
-                        <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:gap-2">
-                          {product.sizes
-                            .filter(
-                              (valor, indice, self) =>
-                                self.indexOf(valor) === indice
-                            )
-                            .map((size) => {
-                              return (
-                                <Badge
-                                  key={size}
-                                  variant="outline"
-                                  className={`px-2 py-1 bg-${size}-500 text-${size}-50`}
-                                >
-                                  {size}
-                                </Badge>
-                              );
-                            })}
-                        </div>
-                      </div>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            className="w-full flex border-2 border-white items-center justify-center gap-2"
-                            size="icon"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="1em"
-                              height="1em"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0m18 11l-6-6"
-                              />
-                            </svg>
-                            Ver producto
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="text-secondary sm:max-w-[425px] bg-primary">
-                          <DialogHeader>
-                            <DialogTitle className="">
-                              Colores y tallas disponibles
-                            </DialogTitle>
-                          </DialogHeader>
-                          <Carousel className="w-full max-w-4xl relative">
-                            <CarouselContent>
-                              {product.clothes.map((clote) => (
-                                <CarouselItem key={clote.code}>
-                                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-center">
-                                    <img
-                                      src={clote.image}
-                                      alt={clote.code}
-                                      width={600}
-                                      height={600}
-                                      className="rounded-lg object-cover w-full aspect-square"
-                                    />
-                                    <div className="grid gap-4">
-                                      <div className="grid gap-2">
-                                        <h3 className="text-xl font-bold">
-                                          {product.name}
-                                        </h3>
-                                        <p>Talla: {clote.sizes}</p>
-                                      </div>
-
-                                      <div className="flex items-center gap-2">
-                                        <p>Color: {clote.colors}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </CarouselItem>
-                              ))}
-                            </CarouselContent>
-                            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-                            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
-                          </Carousel>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+              <ProductItem
+                products={products}
+                selectedCategory={selectedCategory}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+                addItem={addItem}
+              />
             </div>
           </div>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

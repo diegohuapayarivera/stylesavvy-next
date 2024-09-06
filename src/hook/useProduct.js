@@ -8,11 +8,22 @@ export default function useProduct() {
   const [selectedSize, setSelectedSize] = useState([]);
   const [cart, setCart] = useState([]);
 
+  const ITEM_MAX_SIZE = 5;
+  const QUANTITY_ITEM_MAX_SIZE = 3;
+
   const addItem = (item, product) => {
+    console.log(cart);
     const itemExists = cart.find(
       (productoItem) => productoItem.item.code === item.code
     );
     if (itemExists) {
+      const itemExists = cart.find(
+        (productoItem) => productoItem.quantity >= QUANTITY_ITEM_MAX_SIZE
+      );
+      if (itemExists){
+        toast.error("¡Ups! Has superado la cantidad máxima permitida. 😅");
+        return
+      }
       const updateItem = cart.map((productoItem) =>
         productoItem.item.code === item.code
           ? {
@@ -23,6 +34,10 @@ export default function useProduct() {
       );
       setCart(updateItem);
     } else {
+      if (cart.length >= ITEM_MAX_SIZE) {
+        toast.error("¡Lo sentimos! Has superado el límite de este producto. 😔");
+        return;
+      }
       const newItem = {
         item,
         name: product.name,
@@ -31,14 +46,12 @@ export default function useProduct() {
       };
       setCart([...cart, newItem]);
     }
-    toast.success("Producto agregado")
+    toast.success("¡Excelente elección! Producto agregado. 🚀");
   };
 
   function deleteItem(codeItem) {
-    setCart(cart.filter(
-      (carItemExist) => carItemExist.item.code !== codeItem
-    ));
-    toast.error("Producto Eliminado")
+    setCart(cart.filter((carItemExist) => carItemExist.item.code !== codeItem));
+    toast.error("¡Cuidado! Has eliminado un producto. 😔");
   }
 
   const getCategoryesUniques = (type) => {
@@ -104,6 +117,7 @@ export default function useProduct() {
     selectedColor,
     selectedSize,
     cart,
+    setCart,
     addItem,
     deleteItem,
     getCategoryesUniques,

@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -15,7 +16,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 
-function CartItem({ cart, deleteItem }) {
+function CartItem({ cart, deleteItem , setCart}) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
@@ -45,6 +46,29 @@ function CartItem({ cart, deleteItem }) {
     message += `Total a pagar: S/ ${totalPrice.toFixed(2)}`;
     return `https://api.whatsapp.com/send/?phone=51978764913&text=${message}`;
   }, [name, cart]);
+
+
+  const handleSubmitData = async () => {
+    const data = {
+      nombre: name,
+      celular: phone,
+      carrito: cart
+    };
+
+    try {
+       await fetch("https://script.google.com/macros/s/AKfycbz8RtMz31ETl_emXSeaQuPC50qp_SGqIYaKLO6mO9opFBmPP8l3G7_GcK9iHU0zMOmX/exec", {
+        method: 'POST',
+        body: JSON.stringify(data),
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    setCart([])
+  }
 
   return (
     <>
@@ -167,16 +191,21 @@ function CartItem({ cart, deleteItem }) {
                   </div>
                 </div>
                 <DialogFooter>
-                  <a
+                <DialogClose asChild>
+                <a
                     href={encodedMessage}
                     target="_blank"
                     style={{
                       pointerEvents: isDisabled ? "none" : "auto",
                       color: isDisabled ? "gray" : "white",
                     }}
+                    onClick={handleSubmitData}
                   >
                     Enviar mensaje por WhatsApp
                   </a>
+                
+                </DialogClose>
+              
                 </DialogFooter>
               </DialogContent>
             </Dialog>
